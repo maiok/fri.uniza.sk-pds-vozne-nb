@@ -1,0 +1,11 @@
+insert into Typ_Kontroly values(1,200,'kontrola ucinnosti chladenia vzduchu');
+insert into Typ_Kontroly values(2,1480,'premeranie - geometria');
+insert into Typ_Kontroly values(3,750,'kontrola ucinnosti brzd');
+insert into Typ_Kontroly values(4,250,'kontrola ucinnosti tlmicov');
+insert into Typ_Kontroly values(5,75,'kontrola ucinnosti nudzovej brzdy');
+insert into Typ_Kontroly values(6,1230,'kontrola elektrickych rozvodov');
+insert into Typ_Kontroly values(7,670,'kontrola spojovaca voznov');
+insert into Typ_Kontroly values(8,125,'kontrola palubnych ukazovatelov');
+insert into Typ_Kontroly values(9,935,'kontrola elektromotora');
+insert into Typ_Kontroly values(10,80,'kontrola nakladneho priestoru');
+insert into Typ_Kontroly values(11,95,'kontrola kontajnerovych spojov');
