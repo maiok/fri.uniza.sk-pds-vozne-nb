@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DBManager {
 
@@ -36,7 +38,7 @@ public class DBManager {
     }
 
     // VYSTUPY ******************************************************************************************************************
-    public ResultSet vystup1(int kriterium, String podmienka, String podmienka2) {
+    public ResultSet select1(int kriterium, String podmienka, String podmienka2) {
         try {
             query = "select id_vozna, typ_vozna, vlastnik.nazov_spolocnosti, vyrobca.nazov_spolocnosti, nazov_stanice, vozen.datum_nadobudnutia\n"
                     + "from vozen\n"
@@ -47,20 +49,20 @@ public class DBManager {
                     + "where ";
             switch (kriterium) {
                 case 0:
-                    query = query + "id_typu = " + podmienka;
+                    query = query + "id_typu_vozna = " + podmienka;
                     break;
                 case 1:
-                    query = query + "id_vlastnika = " + podmienka;
+                    query = query + "vlastnik.nazov_spolocnosti = '" + podmienka+"'";
                     break;
                 case 2:
-                    query = query + "datum_nadobudnutia >= to_date(" + podmienka + ",'DD/MM/YYYY')";
+                    query = query + "datum_nadobudnutia >= to_date('" + podmienka + "','DD/MM/YYYY')";
                     break;
                 case 3:
                     query = "select id_vozna,odpis_percenta, cena,\n"
                             + "func_aktCena(cena, FLOOR(months_between(sysdate,datum_nadobudnutia)/12), odpis_percenta) \n"
                             + "from vozen join typ_vozna using(id_typu_vozna)\n"
-                            + "where func_aktCena(cena, FLOOR(months_between(sysdate,datum_nadobudnutia)/12), odpis_percenta) <= " + podmienka + " \n"
-                            + "and func_aktCena(cena, FLOOR(months_between(sysdate,datum_nadobudnutia)/12), odpis_percenta) >= " + podmienka2;
+                            + "where func_aktCena(cena, FLOOR(months_between(sysdate,datum_nadobudnutia)/12), odpis_percenta) >= " + podmienka + " \n"
+                            + "and func_aktCena(cena, FLOOR(months_between(sysdate,datum_nadobudnutia)/12), odpis_percenta) <= " + podmienka2;
                     break;
             }
             ps = conn.prepareStatement(query);
@@ -75,8 +77,8 @@ public class DBManager {
         try {
             query = "select id_vozna from vozen_stanica\n"
                     + "join stanica using(id_stanice)\n"
-                    + "where nazov_stanice = " + stanica + "\n"
-                    + "and v_stanici_od >= to_date(" + dat_od + ",'DD/MM/YYYY') or v_stanici_do <= to_date(" + dat_do + ",'DD/MM/YYYY')";
+                    + "where nazov_stanice = '" + stanica + "'\n"
+                    + "and v_stanici_od >= to_date('" + dat_od + "','DD/MM/YYYY') or v_stanici_do <= to_date('" + dat_do + "','DD/MM/YYYY')";
 
             ps = conn.prepareStatement(query);
             return ps.executeQuery();
@@ -110,7 +112,7 @@ public class DBManager {
                 case 1:
                     query = "select id_typu_vozna, count(*), vlastnik.nazov_spolocnosti from vozen\n"
                             + "join spolocnost vlastnik on (vlastnik.id_spolocnosti = vozen.id_vlastnika)\n"
-                            + "where vlastnik.nazov_spolocnosti = " + spolocnost + "\n"
+                            + "where vlastnik.nazov_spolocnosti = '" + spolocnost + "'\n"
                             + "group by vlastnik.nazov_spolocnosti, id_typu_vozna";
                     break;
             }
@@ -204,7 +206,7 @@ public class DBManager {
                     + "join oprava_suciastka using(id_opravy)\n"
                     + "where id_vozna = " + id_vozna + "\n"
                     + "group by id_vozna, to_char(oprava_od, 'MM')\n"
-                    + "order by id_vozna, to_char(oprava_od, 'MM');";
+                    + "order by id_vozna, to_char(oprava_od, 'MM')";
             ps = conn.prepareStatement(query);
             arrRS.add(ps.executeQuery());
 
@@ -267,6 +269,8 @@ public class DBManager {
                     + "from kontrola\n"
                     + "join oprava using(id_kontroly)\n"
                     + "join vozen using(id_vozna)\n"
+                    + "join oprava_suciastka using(id_opravy)\n"
+                    + "join typ_opravy using(id_typu_opravy)\n"
                     + "where ";
             switch (kriterium) {
                 case 0:
@@ -290,7 +294,7 @@ public class DBManager {
                             + ") where poradie <=3";
                     break;
                 case 4:
-                    query = query + "oprava_od <= " + id2 + " and oprava_do >= " + id + "\n"
+                    query = query + "oprava_od <= to_date('" + id2 + "','DD/MM/YYYY') and oprava_do >= to_date('" + id + "','DD/MM/YYYY')\n"
                             + "group by id_vozna\n"
                             + ") where poradie <=3";
                     break;
@@ -365,7 +369,7 @@ public class DBManager {
             ps = conn.prepareStatement(query);
             arrRS.add(ps.executeQuery());
 
-            query = "Select id_vozna, sum(cena_kontroly) as cena\n"
+            query = "Select id_vozna, sum(cena_kontroly)\n"
                     + "from vozen\n"
                     + "join kontrola using(id_vozna)\n"
                     + "join typ_kontroly using(id_typu_kontroly)\n"
@@ -383,7 +387,8 @@ public class DBManager {
 
     public String select11(String id, String dat_od, String dat_do) {
         try {
-            CallableStatement proc = conn.prepareCall("{? = call func11(" + id + ",to_date(" + dat_od + ",'DD/MM/YYYY'),to_date(" + dat_do + ",'DD/MM/YYYY'))}");
+            CallableStatement proc = conn.prepareCall("{? = call func11(" + id + ",to_date('" + dat_od + "','DD/MM/YYYY'),to_date('" + dat_do + "','DD/MM/YYYY'))}");
+            proc.registerOutParameter(1, Types.VARCHAR);
             proc.execute();
             String vysledok = proc.getString(1);
 
@@ -398,8 +403,9 @@ public class DBManager {
         try {
             query = "select * from VYRADENY_VOZEN\n"
                     + "join vozen using(id_vozna)\n"
-                    + "where id_vlastnika = " + id_vlastnika + "\n"
-                    + "and popis_vyradenia = " + popis_vyradenia + "";
+                    + "join spolocnost m on(vozen.id_vlastnika = m.id_spolocnosti)\n"
+                    + "where nazov_spolocnosti = '" + id_vlastnika + "'\n"
+                    + "and popis_vyradenia is " + popis_vyradenia + "";
 
             ps = conn.prepareStatement(query);
             return ps.executeQuery();
@@ -413,7 +419,7 @@ public class DBManager {
         try {
             query = "select id_vlastnika, count(id_vozna)\n"
                     + "from vozen\n"
-                    + "where datum_nadobudnutia >= to_date(" + datum + ",'DD/MM/YYYY')\n"
+                    + "where datum_nadobudnutia >= to_date('" + datum + "','DD/MM/YYYY')\n"
                     + "and not exists (\n"
                     + "     select 'x' from vyradeny_vozen\n"
                     + "     where vyradeny_vozen.id_vozna = vozen.id_vozna\n"
@@ -496,6 +502,18 @@ public class DBManager {
             return ps.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public ResultSet selectBlob(String id){
+        try {
+            query = "select foto_vozna from typ_vozna\n"
+                    + "where id_typu_vozna = "+id;
+            ps = conn.prepareStatement(query);
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+            Logger.getLogger(DBManager.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
