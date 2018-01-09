@@ -227,10 +227,12 @@ public class App extends javax.swing.JFrame {
             rs = dbManager.selectTypyVoznov();
             jComboBox1.removeAllItems();
             jComboBox_typ_vozna15.removeAllItems();
+            jComboBox1_Vozen1.removeAllItems();
             jComboBox1.addItem("");
             while (rs.next()) {
                 jComboBox1.addItem(rs.getString(4));
                 jComboBox_typ_vozna15.addItem(rs.getString(4));
+                jComboBox1_Vozen1.addItem(rs.getString(1));
             }
             rs.close();
 
@@ -278,12 +280,10 @@ public class App extends javax.swing.JFrame {
 
             // vozne
             rs = dbManager.selectVoznov();
-            jComboBox1_Vozen1.removeAllItems();
             jComboBox_vozen4.removeAllItems();
             jComboBox_vozen5.removeAllItems();
             // jComboBox_vozen6.removeAllItems();
             while (rs.next()) {
-                jComboBox1_Vozen1.addItem(rs.getString(1));
                 jComboBox_vozen4.addItem(rs.getString(1));
                 jComboBox_vozen5.addItem(rs.getString(1));
                 //jComboBox_vozen6.addItem(rs.getString(1));
@@ -928,7 +928,7 @@ public class App extends javax.swing.JFrame {
 
         jComboBox1_Vozen1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jLabel22.setText("Vozen");
+        jLabel22.setText("Typ vozna");
 
         jLabel23.setText("Vlastnik");
 
@@ -2311,15 +2311,15 @@ public class App extends javax.swing.JFrame {
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         if (Integer.parseInt(jTextField_kriterium7.getText()) == 0) {
-            s7table = new SelectTableModel(dbManager.select7(0, jComboBox_typVozna7.getSelectedItem()+"",""));
+            s7table = new SelectTableModel(dbManager.select7(0, jComboBox_typVozna7.getSelectedItem() + "", ""));
         } else if (Integer.parseInt(jTextField_kriterium7.getText()) == 1) {
-            s7table = new SelectTableModel(dbManager.select7(1, jComboBox_vlastnik7.getSelectedIndex()+"",""));
+            s7table = new SelectTableModel(dbManager.select7(1, jComboBox_vlastnik7.getSelectedIndex() + "", ""));
         } else if (Integer.parseInt(jTextField_kriterium7.getText()) == 2) {
-            s7table = new SelectTableModel(dbManager.select7(2, jComboBox_vyrobca7.getSelectedIndex()+"",""));
-        }else if (Integer.parseInt(jTextField_kriterium7.getText()) == 3) {
-            s7table = new SelectTableModel(dbManager.select7(3, jComboBox_typ_opravy7.getSelectedIndex()+"",""));
-        }else if (Integer.parseInt(jTextField_kriterium7.getText()) == 4) {
-            s7table = new SelectTableModel(dbManager.select7(4, jTextField_datumOd7.getText(),jTextField_datumDo7.getText()));
+            s7table = new SelectTableModel(dbManager.select7(2, jComboBox_vyrobca7.getSelectedIndex() + "", ""));
+        } else if (Integer.parseInt(jTextField_kriterium7.getText()) == 3) {
+            s7table = new SelectTableModel(dbManager.select7(3, jComboBox_typ_opravy7.getSelectedIndex() + "", ""));
+        } else if (Integer.parseInt(jTextField_kriterium7.getText()) == 4) {
+            s7table = new SelectTableModel(dbManager.select7(4, jTextField_datumOd7.getText(), jTextField_datumDo7.getText()));
         }
         jTable7.setModel(s7table);
         jTable7.setVisible(true);
@@ -2332,10 +2332,10 @@ public class App extends javax.swing.JFrame {
             rs.next();
             Blob blob = rs.getBlob("foto_vozna");
             // materialize BLOB onto client
-            byte[] bytes =  blob.getBytes(1, (int) blob.length());
+            byte[] bytes = blob.getBytes(1, (int) blob.length());
             blob.free();
             BufferedImage img = ImageIO.read(new ByteArrayInputStream(bytes));
-            ImageIcon icon =new ImageIcon(img);
+            ImageIcon icon = new ImageIcon(img);
             jLabel52.setIcon(new ImageIcon(img));
         } catch (SQLException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
