@@ -7,10 +7,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import oracle.xdb.XMLType;
 
 public class DBManager {
 
@@ -52,7 +56,7 @@ public class DBManager {
                     query = query + "id_typu_vozna = " + podmienka;
                     break;
                 case 1:
-                    query = query + "vlastnik.nazov_spolocnosti = '" + podmienka+"'";
+                    query = query + "vlastnik.nazov_spolocnosti = '" + podmienka + "'";
                     break;
                 case 2:
                     query = query + "datum_nadobudnutia >= to_date('" + podmienka + "','DD/MM/YYYY')";
@@ -105,12 +109,12 @@ public class DBManager {
         try {
             switch (kriterium) {
                 case 0:
-                    query = "select id_typu_vozna, count(*) from vozen\n"
+                    query = "select id_typu_vozna, count(*) as pocet from vozen\n"
                             + "group by id_typu_vozna\n"
                             + "order by id_typu_vozna";
                     break;
                 case 1:
-                    query = "select id_typu_vozna, count(*), vlastnik.nazov_spolocnosti from vozen\n"
+                    query = "select id_typu_vozna, count(*) as pocet, vlastnik.nazov_spolocnosti from vozen\n"
                             + "join spolocnost vlastnik on (vlastnik.id_spolocnosti = vozen.id_vlastnika)\n"
                             + "where vlastnik.nazov_spolocnosti = '" + spolocnost + "'\n"
                             + "group by vlastnik.nazov_spolocnosti, id_typu_vozna";
@@ -125,7 +129,7 @@ public class DBManager {
         return null;
     }
 
-    public ResultSet select4(int kriterium, String id_vozna) {
+    public String select4(int kriterium, String id_vozna) {
         try {
             query = "select XMLROOT(\n"
                     + "XMLELEMENT(\"VOZEN\",\n"
@@ -163,7 +167,13 @@ public class DBManager {
                     + "group by ID_VOZNA,ID_TYPU_VOZNA,ID_VLASTNIKA,ID_VYROBCU,ID_DOMOVSKEJ_STANICE,DATUM_NADOBUDNUTIA,datum_vyradenia,POPIS_VYRADENIA";
 
             ps = conn.prepareStatement(query);
-            return ps.executeQuery();
+            ResultSet rset = ps.executeQuery();
+            String poString = "";
+            while (rset.next()) {
+                XMLType poxml = (XMLType) rset.getObject(1);
+                poString = poxml.getStringVal();
+            }
+            return poString;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -264,7 +274,7 @@ public class DBManager {
     public ResultSet select7(int kriterium, String id, String id2) {
         try {
             query = "select * from(\n"
-                    + "select rank() over(order by count(id_opravy) desc) as poradie, count(id_opravy),\n"
+                    + "select rank() over(order by count(id_opravy) desc) as poradie, count(id_opravy) as pocet_oprav,\n"
                     + "id_vozna\n"
                     + "from kontrola\n"
                     + "join oprava using(id_kontroly)\n"
@@ -405,7 +415,7 @@ public class DBManager {
                     + "join vozen using(id_vozna)\n"
                     + "join spolocnost m on(vozen.id_vlastnika = m.id_spolocnosti)\n"
                     + "where nazov_spolocnosti = '" + id_vlastnika + "'\n"
-                    + "and popis_vyradenia is " + popis_vyradenia + "";
+                    + "and popis_vyradenia = '" + popis_vyradenia + "'";
 
             ps = conn.prepareStatement(query);
             return ps.executeQuery();
@@ -417,7 +427,7 @@ public class DBManager {
 
     public ResultSet select13(String datum) {
         try {
-            query = "select id_vlastnika, count(id_vozna)\n"
+            query = "select id_vlastnika, count(id_vozna) as pocet_voznov\n"
                     + "from vozen\n"
                     + "where datum_nadobudnutia >= to_date('" + datum + "','DD/MM/YYYY')\n"
                     + "and not exists (\n"
@@ -439,7 +449,7 @@ public class DBManager {
         try {
             switch (kriterium) {
                 case 0:
-                    query = "select id_vlastnika, id_domovskej_stanice, count(id_vozna)\n"
+                    query = "select id_vlastnika, id_domovskej_stanice, count(id_vozna) as pocet_voznov\n"
                             + "from vozen\n"
                             + "group by id_vlastnika, id_domovskej_stanice\n"
                             + "having count(id_vozna)=(\n"
@@ -468,7 +478,7 @@ public class DBManager {
         try {
             switch (kriterium) {
                 case 0:
-                    query = "select rod_cislo, meno, priezvisko, count(id_opravy) \n"
+                    query = "select rod_cislo, meno, priezvisko, count(id_opravy) as pocet_oprav\n"
                             + "from zamestnanec\n"
                             + "join osoba using(rod_cislo)\n"
                             + "join oprava_suciastka using(id_zamestnanca)\n"
@@ -476,7 +486,7 @@ public class DBManager {
                             + "order by count(id_opravy) desc";
                     break;
                 case 1:
-                    query = "select rod_cislo, meno, priezvisko, count(id_opravy) \n"
+                    query = "select rod_cislo, meno, priezvisko, count(id_opravy) as pocet_oprav \n"
                             + "from zamestnanec\n"
                             + "join osoba using(rod_cislo)\n"
                             + "join oprava_suciastka using(id_zamestnanca)\n"
@@ -485,7 +495,7 @@ public class DBManager {
                             + "order by count(id_opravy) desc";
                     break;
                 case 2:
-                    query = "select rod_cislo, meno, priezvisko, count(id_opravy) \n"
+                    query = "select rod_cislo, meno, priezvisko, count(id_opravy) as pocet_oprav\n"
                             + "from zamestnanec\n"
                             + "join osoba using(rod_cislo)\n"
                             + "join oprava_suciastka using(id_zamestnanca)\n"
@@ -505,11 +515,11 @@ public class DBManager {
         }
         return null;
     }
-    
-    public ResultSet selectBlob(String id){
+
+    public ResultSet selectBlob(String id) {
         try {
             query = "select foto_vozna from typ_vozna\n"
-                    + "where id_typu_vozna = "+id;
+                    + "where id_typu_vozna = " + id;
             ps = conn.prepareStatement(query);
             return ps.executeQuery();
         } catch (SQLException ex) {
@@ -684,24 +694,6 @@ public class DBManager {
                 pstmt.close();
             }
         } catch (SQLException | FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void generujHistoriuTypSuciastky() {
-
-        query = "update typ_suciastky set historia_ceny = ? where id_typu_suciastky = ?";
-
-        try {
-            for (int i = 1; i <= 50; i++) {
-                PreparedStatement pstmt = conn.prepareStatement(query);
-
-                pstmt.setInt(2, i);
-
-                pstmt.executeUpdate();
-                pstmt.close();
-            }
-        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -963,7 +955,7 @@ public class DBManager {
         }
         return false;
     }
-    
+
     public boolean insertKontrolaZamestnanec(KontrolaZamestnanec kz) {
         query = "insert into kontrola_zamestnanec (id_zamestnanca, id_kontroly, kontrola_od, kontrola_do) "
                 + "values(?,?,?,?)";
@@ -1012,6 +1004,75 @@ public class DBManager {
         kz.setKontrolaOd(datumOd);
         kz.setKontrolaDo(datumDo);
         insertKontrolaZamestnanec(kz);
+    }
+
+    public void generujHistoriuCenyTypuSuciastky() {
+
+//        query = "insert into typ_suciastky (historia_ceny,typ_suciastky) values( t_historia_ceny(t_rec_historia_ceny(?,?,?),t_rec_historia_ceny(?,?,?)) , 'asdf')";
+        String update = "update typ_suciastky set historia_ceny = t_historia_ceny(t_rec_historia_ceny(?,?,?),t_rec_historia_ceny(?,?,?)) where id_typu_suciastky = ?";
+        String select = "select cena_suciastky from suciastka where id_suciastky = ?";
+        Date pomDate;
+        try {
+
+            for (int i = 1; i <= 50; i++) {
+
+                // select
+                int pocet = 0;
+                double cenaPriemer = 0;
+                PreparedStatement pstmt = conn.prepareStatement(select);
+                pstmt.setInt(1, i);
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    cenaPriemer += rs.getInt(1);
+                    pocet++;
+                }
+                cenaPriemer /= pocet;
+                pstmt.close();
+
+                // update
+                pstmt = conn.prepareStatement(update);
+
+                pomDate = getRandomDateFromPast();
+                pstmt.setDate(1, pomDate);
+                pomDate.setMonth(pomDate.getMonth() + randBetween(1, 12));
+                pstmt.setDate(2, pomDate);
+                pstmt.setDouble(3, cenaPriemer);
+
+                pomDate = getRandomDateFromPast();
+                pstmt.setDate(4, pomDate);
+                pomDate.setMonth(pomDate.getMonth() + randBetween(1, 12));
+                pstmt.setDate(5, pomDate);
+                pstmt.setDouble(6, cenaPriemer - 1);
+
+                pstmt.setInt(7, i);
+                pstmt.executeUpdate();
+                pstmt.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Date getRandomDateFromPast() {
+
+        GregorianCalendar gc = new GregorianCalendar();
+        int rok = randBetween(1990, 2017);
+        gc.set(gc.YEAR, rok);
+        int dayOfYear = randBetween(1, gc.getActualMaximum(gc.DAY_OF_YEAR));
+        gc.set(gc.DAY_OF_YEAR, dayOfYear);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+        Date datum = null;
+        try {
+            datum = new Date(sdf.parse(gc.get(gc.DAY_OF_MONTH) + "." + gc.get(gc.MONTH) + "." + gc.get(gc.YEAR)).getTime());
+        } catch (ParseException ex) {
+            ex.printStackTrace();
+        }
+        return datum;
+    }
+
+    public static int randBetween(int start, int end) {
+        return start + (int) Math.round(Math.random() * (end - start));
     }
 
 }

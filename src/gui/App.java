@@ -104,7 +104,7 @@ public class App extends javax.swing.JFrame {
         s103itable = new SelectTableModel(arrayList.get(2));
         s10table = s101itable;
 
-        s12table = new SelectTableModel(dbManager.select12("2", null));
+        s12table = new SelectTableModel(dbManager.select12("2", "vek"));
         s13table = new SelectTableModel(dbManager.select13("01/01/2000"));
         s14table = new SelectTableModel(dbManager.select14(0));
         s15table = new SelectTableModel(dbManager.select15(0, null));
@@ -404,6 +404,7 @@ public class App extends javax.swing.JFrame {
         jLabel20 = new javax.swing.JLabel();
         jPanel20 = new javax.swing.JPanel();
         jButton_pridaBloby = new javax.swing.JButton();
+        jButton_generujHistoriu = new javax.swing.JButton();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jPanel4 = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
@@ -447,6 +448,8 @@ public class App extends javax.swing.JFrame {
         jLabel33 = new javax.swing.JLabel();
         jComboBox_vozen4 = new javax.swing.JComboBox<>();
         jButton8 = new javax.swing.JButton();
+        jScrollPane20 = new javax.swing.JScrollPane();
+        jTextArea7 = new javax.swing.JTextArea();
         jPanel8 = new javax.swing.JPanel();
         jLabel34 = new javax.swing.JLabel();
         jComboBox_vozen5 = new javax.swing.JComboBox<>();
@@ -898,21 +901,32 @@ public class App extends javax.swing.JFrame {
             }
         });
 
+        jButton_generujHistoriu.setText("Generuj historiu ceny");
+        jButton_generujHistoriu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_generujHistoriuActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel20Layout = new javax.swing.GroupLayout(jPanel20);
         jPanel20.setLayout(jPanel20Layout);
         jPanel20Layout.setHorizontalGroup(
             jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel20Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton_pridaBloby)
-                .addContainerGap(702, Short.MAX_VALUE))
+                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton_pridaBloby)
+                    .addComponent(jButton_generujHistoriu))
+                .addContainerGap(656, Short.MAX_VALUE))
         );
         jPanel20Layout.setVerticalGroup(
             jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel20Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jButton_pridaBloby)
-                .addContainerGap(396, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton_generujHistoriu)
+                .addContainerGap(362, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("Ostatne", jPanel20);
@@ -1192,6 +1206,10 @@ public class App extends javax.swing.JFrame {
             }
         });
 
+        jTextArea7.setColumns(20);
+        jTextArea7.setRows(5);
+        jScrollPane20.setViewportView(jTextArea7);
+
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
@@ -1199,12 +1217,16 @@ public class App extends javax.swing.JFrame {
             .addGroup(jPanel7Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel33)
+                    .addComponent(jScrollPane20)
                     .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jComboBox_vozen4, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(556, Short.MAX_VALUE))
+                        .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel33)
+                            .addGroup(jPanel7Layout.createSequentialGroup()
+                                .addComponent(jComboBox_vozen4, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton8, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 546, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1215,7 +1237,9 @@ public class App extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox_vozen4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton8))
-                .addContainerGap(376, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane20, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jTabbedPane2.addTab("4", jPanel7);
@@ -1633,7 +1657,7 @@ public class App extends javax.swing.JFrame {
 
         jComboBox_vlastnik12.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jLabel45.setText("Popis vyradenia");
+        jLabel45.setText("Popis vyradenia (vek, opotrebenie, poskodenie)");
 
         jTextField_popis12.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1670,9 +1694,9 @@ public class App extends javax.swing.JFrame {
                             .addGroup(jPanel15Layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jTextField_popis12, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(98, 98, 98)
+                                .addGap(157, 157, 157)
                                 .addComponent(jButton17, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 324, Short.MAX_VALUE)))
+                        .addGap(0, 265, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel15Layout.setVerticalGroup(
@@ -2239,7 +2263,7 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        // TODO add your handling code here:
+        jTextArea7.setText(dbManager.select4(0, jComboBox_vozen4.getSelectedItem() + ""));
         //--------------------------------------- 4 ---------------------------
     }//GEN-LAST:event_jButton8ActionPerformed
 
@@ -2280,7 +2304,7 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton16ActionPerformed
 
     private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
-        s12table = new SelectTableModel(dbManager.select12(jComboBox_vlastnik12.getSelectedItem() + "", "null"));
+        s12table = new SelectTableModel(dbManager.select12(jComboBox_vlastnik12.getSelectedItem() + "", jTextField_popis12.getText()));
         jTable12.setModel(s12table);
         jTable12.setVisible(true);
     }//GEN-LAST:event_jButton17ActionPerformed
@@ -2349,6 +2373,10 @@ public class App extends javax.swing.JFrame {
         dbManager.generujBlobyTypVozna();
     }//GEN-LAST:event_jButton_pridaBlobyActionPerformed
 
+    private void jButton_generujHistoriuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_generujHistoriuActionPerformed
+        dbManager.generujHistoriuCenyTypuSuciastky();
+    }//GEN-LAST:event_jButton_generujHistoriuActionPerformed
+
     private void showMessage(String text) {
         JOptionPane.showMessageDialog(null, text);
     }
@@ -2410,6 +2438,7 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
+    private javax.swing.JButton jButton_generujHistoriu;
     private javax.swing.JButton jButton_pridaBloby;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JComboBox<String> jComboBox10;
@@ -2523,6 +2552,7 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane18;
     private javax.swing.JScrollPane jScrollPane19;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane20;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
@@ -2553,6 +2583,7 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea4;
     private javax.swing.JTextArea jTextArea5;
     private javax.swing.JTextArea jTextArea6;
+    private javax.swing.JTextArea jTextArea7;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
